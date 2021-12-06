@@ -14,7 +14,7 @@ var ConnectDB *gorm.DB
 var err error
 
 func Connect() {
-	ConnectDB, err = gorm.Open("postgres", "user=postgres dbname=Gin password=mobcoder@123 sslmode=disable")
+	ConnectDB, err = gorm.Open("postgres", "user=postgress dbname=postgress password=postgress sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
