@@ -11,7 +11,7 @@ DB_PORT = 5432
 DB_USER = postgres
 
 
-DB_PASSWORD = Users
+DB_PASSWORD = UsersDatabasePassword
 
 
 DB_NAME = YourDatabaseName
