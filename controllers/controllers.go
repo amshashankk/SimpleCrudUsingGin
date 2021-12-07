@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,57 +9,94 @@ import (
 	"github.com/amshashankk/models"
 )
 
-func AddEmployee(c *gin.Context) {
+//var db = database.DB
 
-	var Emp models.Employee
+func AddEmployee(c *gin.Context) {
+	var db = database.DB
+
+	Emp := new(models.Employee)
 	c.BindJSON(&Emp)
 
-	addEmployee := models.Employee{Id: Emp.Id, Phone: Emp.Phone, Name: Emp.Name, Address: Emp.Address}
-	database.ConnectDB.Create(&addEmployee)
+	db.Create(&Emp)
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Employee added successfully",
+
+		"message": "Employee Added Successfully",
+		"data":    Emp,
 	})
-
 }
 
-func DeleteEmployee(c *gin.Context) {
-
-	var Emp models.Employee
-	c.BindJSON(&Emp)
-
-	if err := database.ConnectDB.Where("Id = ?", Emp.Id).Delete(&models.Employee{}).Error; err != nil {
-		fmt.Printf("error deleting employee", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-}
-
-func GetEmployeeById(c *gin.Context) {
+func GetEmployees(c *gin.Context) {
+	var db = database.DB
 
 	var Emp []models.Employee
 
-	if err := database.ConnectDB.Raw("SELECT * from employee where Id = ?").Scan(&Emp).Error; err != nil {
-		fmt.Printf("error showing employee details", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
+	db.Find(&Emp)
 
 	if Emp != nil {
 		c.JSON(http.StatusOK, Emp)
 	} else {
-		c.JSON(http.StatusOK, json.RawMessage(`[]`))
+		c.JSON(http.StatusOK, gin.H{"message": "No employee found"})
 	}
 }
 
-func UpdateEmpDetails(c *gin.Context) {
+func GetEmployeeById(c *gin.Context) {
+	var db = database.DB
+
+	id := c.Param("id")
 
 	var Emp models.Employee
+
+	db.Find(&Emp, id)
+
+	if Emp.Id != "0" {
+		c.JSON(http.StatusOK, Emp)
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": "No employee found"})
+	}
+
+}
+
+func DeleteEmployee(c *gin.Context) {
+	var db = database.DB
+
+	id := c.Param("id")
+
+	var Emp models.Employee
+
+	db.Find(&Emp, id)
+
+	if Emp.Id != "0" {
+		db.Delete(&Emp)
+		c.JSON(http.StatusOK, gin.H{"message": "Employee deleted successfully"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": "No employee found"})
+	}
+
+}
+
+func UpdateEmpDetails(c *gin.Context) {
+	var db = database.DB
+
+	Emp := new(models.Employee)
+
 	c.BindJSON(&Emp)
 
-	if err := database.ConnectDB.Model(&Emp).Where("Id = ?").Updates(models.Employee{Name: Emp.Name, Phone: Emp.Phone, Address: Emp.Address}).Error; err != nil {
-		fmt.Printf("error updating details", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
+	id := c.Param("id")
+
+	var Emp1 models.Employee
+
+	db.First(&Emp1, id)
+
+	Emp1.Name = Emp.Name
+	Emp1.Email = Emp.Email
+	Emp1.Phone = Emp.Phone
+
+	db.Save(&Emp1)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Employee details updated successfully",
+		"Employee": Emp1,
+	})
+
 }
