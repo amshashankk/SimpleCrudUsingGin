@@ -6,6 +6,7 @@ import (
 )
 
 func SetupRoutes(router *gin.Engine) {
+	//Grouping the router apis with "/api" path
 	api := router.Group("/api")
 
 	api.POST("/add", controllers.AddEmployee)
