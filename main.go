@@ -14,14 +14,15 @@ import (
 func main() {
 	app := gin.Default()
 
+	//Loading .env file
 	godotenv.Load()
 
-	//InitPostgres()
+	//Starting database connection
 	database.ConnectDB()
 
 	fmt.Println("Server started at port 4000")
 
-	
+	//Setting up routes for the api
 	routes.SetupRoutes(app)
 
 	// Start and run the server
